@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yogesh Penumur | DevOps Engineer Portfolio</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bgDark: '#0f172a',
+                        neonCyan: '#00D4FF',
+                        neonPurple: '#8B5CF6',
+                        glass: 'rgba(15, 23, 42, 0.6)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom CSS for things Tailwind handles awkwardly */
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+            cursor: none; /* Hiding default cursor for custom one */
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00D4FF;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8B5CF6;
+        }
+
+        /* Custom Cursor */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #00D4FF;
+        }
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #8B5CF6;
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-card:hover {
+            border-color: #00D4FF;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+        }
+
+        /* Matrix Rain Canvas */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        /* 3D Canvas */
+        #three-canvas {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 50%;
+            height: 100vh;
+            z-index: 1;
+            opacity: 0.8;
+        }
+
+        /* Typing Cursor */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-start infinite;
+            color: #00D4FF;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Fira Code', monospace;
+        }
+        
+        .loader-bar {
+            width: 300px;
+            height: 4px;
+            background: #1e293b;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loader-progress {
+            width: 0%;
+            height: 100%;
+            background: #00D4FF;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="preloader">
+        <div class="text-neonCyan text-xl animate-pulse">SYSTEM BOOT SEQUENCE INITIATED...</div>
+        <div class="loader-bar">
+            <div class="loader-progress" id="loader-progress"></div>
+        </div>
+        <div class="text-slate-500 text-sm mt-2" id="loader-text">Loading modules...</div>
+    </div>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+ 
+    <canvas id="matrix-canvas"></canvas>
+    
+    <nav class="fixed top-0 w-full z-50 glass-card border-b-0 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold font-mono text-white">
+                <span class="text-neonCyan">&lt;</span>Portfolio<span class="text-neonPurple">/&gt;</span>
+            </a>
+            
+            <div class="hidden md:flex space-x-8 font-mono text-sm">
+                <a href="#about" class="hover:text-neonCyan transition-colors">_ABOUT</a>
+                <a href="#skills" class="hover:text-neonCyan transition-colors">_SKILLS</a>
+                <a href="#projects" class="hover:text-neonCyan transition-colors">_PROJECTS</a>
+                <a href="#contact" class="hover:text-neonCyan transition-colors">_CONTACT</a>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+        
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-bgDark border-b border-slate-800 p-4 flex flex-col space-y-4">
+            <a href="#about" class="hover:text-neonCyan">_ABOUT</a>
+            <a href="#skills" class="hover:text-neonCyan">_SKILLS</a>
+            <a href="#projects" class="hover:text-neonCyan">_PROJECTS</a>
+            <a href="#contact" class="hover:text-neonCyan">_CONTACT</a>
+        </div>
+    </nav>
+
+    <section class="relative min-h-screen flex items-center px-6 pt-20 overflow-hidden" id="home">
+        <div id="three-canvas-container" class="absolute top-0 right-0 w-full h-full z-0 pointer-events-none opacity-30 md:opacity-100"></div>
+
+        <div class="max-w-7xl mx-auto w-full z-10 grid md:grid-cols-2 gap-12 items-center">
+            <div class="space-y-6">
+                <div class="glass-card p-6 rounded-lg font-mono text-sm md:text-base border-l-4 border-neonCyan relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neonCyan to-neonPurple"></div>
+                    <p class="text-slate-400 mb-2">> Initializing portfolio.exe...</p>
+                    <p class="text-slate-400 mb-2">> Loading User: <span class="text-white font-bold">Yogesh Penumur</span></p>
+                    <p class="text-slate-400 mb-2">> Role: <span class="text-neonCyan">DevOps Engineer</span></p>
+                    <p class="text-slate-400">> Status: <span class="text-green-400">Online & Ready to Deploy</span></p>
+                </div>
+
+                <h1 class="text-5xl md:text-7xl font-bold leading-tight">
+                    Automating the <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-neonCyan to-neonPurple typing-cursor" id="hero-typewriter"></span>
+                </h1>
+                
+                <p class="text-slate-400 text-lg max-w-lg">
+                    B.Tech Graduate specializing in AWS, Docker, Kubernetes, and Terraform. I build resilient CI/CD pipelines and scalable cloud infrastructure.
+                </p>
+
+                <div class="flex space-x-4">
+                    <a href="#projects" class="px-8 py-3 bg-neonCyan/10 border border-neonCyan text-neonCyan hover:bg-neonCyan hover:text-black transition-all duration-300 rounded font-mono font-bold">
+                        View Projects
+                    </a>
+                    <a href="Yogesh_Penumur_Resume_Devops_Cloud.pdf" download class="px-8 py-3 bg-neonPurple/10 border border-neonPurple text-neonPurple hover:bg-neonPurple hover:text-white transition-all duration-300 rounded font-mono font-bold">
+                        Download CV
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-slate-500">
+            <i class="fas fa-chevron-down text-2xl"></i>
+        </div>
+    </section>
+
+    <section id="about" class="py-20 px-6 bg-slate-900 relative">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            
+            <div class="relative group mx-auto">
+                <div class="absolute -inset-1 bg-gradient-to-r from-neonCyan to-neonPurple rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative w-64 h-64 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center overflow-hidden">
+                    <img src="images/Profile_pic.jpg" alt="Yogesh Penumur" class="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-500">
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <h2 class="text-4xl font-bold mb-4 flex items-center">
+                    <span class="text-neonPurple mr-2">01.</span> About Me
+                </h2>
+                <div class="font-mono text-sm bg-black/30 p-4 rounded border border-slate-700">
+                    <p class="text-green-400">$ whoami</p>
+                    <p class="text-slate-300 mt-2">
+                        "Aspiring DevOps Engineer with hands-on experience in AWS, Docker, Jenkins, and Terraform. Proficient in building CI/CD pipelines and automating infrastructure."
+                    </p>
+                    <br>
+                    <p class="text-green-400">$ cat education.txt</p>
+                    <ul class="text-slate-300 mt-2 list-disc list-inside">
+                        <li>B.Tech CSE (2020-2024) - CGPA: 7.34</li>
+                        <li>Internship: AWS AI-ML Virtual Internship (EduSkills)</li>
+                    </ul>
+                </div>
+                
+                <p class="text-slate-400 leading-relaxed">
+                    I transitioned from Student to DevOps because I love the challenge of architecture and reliability. My background in Python and Java helps me write better automation scripts, while my passion for Linux drives me to optimize system performance.
+                </p>
+            </div>
+        </div>
+    </section>
+<!--    Skills-->
+    <section id="skills" class="py-20 px-6 relative">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold mb-12 flex items-center">
+                <span class="text-neonCyan mr-2">02.</span> Tech Arsenal
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass-card p-6 rounded-xl hover:-translate-y-2 transition-transform duration-300">
+                    <i class="fab fa-aws text-4xl text-orange-400 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Cloud Computing</h3>
+                    <p class="text-sm text-slate-400 mb-4">AWS (EC2, S3, VPC, Route53, IAM, ELB)</p>
+                    <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                        <div class="bg-orange-400 h-full" style="width: 80%"></div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-xl hover:-translate-y-2 transition-transform duration-300">
+                    <i class="fab fa-docker text-4xl text-blue-500 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Containerization</h3>
+                    <p class="text-sm text-slate-400 mb-4">Docker, Kubernetes (K8s)</p>
+                    <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                        <div class="bg-blue-500 h-full" style="width: 85%"></div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-xl hover:-translate-y-2 transition-transform duration-300">
+                    <i class="fas fa-code-branch text-4xl text-neonPurple mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">IaC & CM</h3>
+                    <p class="text-sm text-slate-400 mb-4">Terraform, Ansible</p>
+                    <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                        <div class="bg-neonPurple h-full" style="width: 75%"></div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-xl hover:-translate-y-2 transition-transform duration-300">
+                    <i class="fas fa-sync-alt text-4xl text-neonCyan mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">CI/CD</h3>
+                    <p class="text-sm text-slate-400 mb-4">Jenkins, Git, GitHub Actions</p>
+                    <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                        <div class="bg-neonCyan h-full" style="width: 90%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+<!--    Projects-->
+    <section id="projects" class="py-20 px-6 bg-slate-900 relative">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold mb-12 flex items-center">
+                <span class="text-neonPurple mr-2">03.</span> Deployment Log
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <div class="glass-card rounded-xl overflow-hidden group relative">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <i class="fas fa-folder text-neonCyan text-3xl"></i>
+                            <div class="flex space-x-3">
+                                <a href="https://github.com/yogeshpenumur/AWS-CI-CD" target="_blank" class="text-slate-400 hover:text-white"><i class="fab fa-github text-xl"></i></a>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-neonCyan transition-colors">Flask App CI/CD Pipeline</h3>
+                        <p class="text-slate-400 text-sm mb-4">
+                            Built a containerized Flask app pipeline using AWS CodePipeline & CodeBuild. Deployed to EC2 via Docker with SSM Parameter Store for secrets.
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs font-mono text-neonPurple">
+                            <span>AWS</span> <span>Docker</span> <span>CodePipeline</span> <span>Python</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-xl overflow-hidden group relative">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <i class="fas fa-folder text-neonCyan text-3xl"></i>
+                            <div class="flex space-x-3">
+                                <a href="https://github.com/yogeshpenumur/AWS-VPC-ALB-Setup-Terraform" target="_blank" class="text-slate-400 hover:text-white"><i class="fab fa-github text-xl"></i></a>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-neonCyan transition-colors">Secure VPC with Terraform</h3>
+                        <p class="text-slate-400 text-sm mb-4">
+                            Designed a Multi-AZ VPC architecture. Configured Public/Private subnets, NAT Gateways, and ALBs using Infrastructure as Code for high availability.
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs font-mono text-neonPurple">
+                            <span>Terraform</span> <span>VPC</span> <span>Security</span> <span>IaC</span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="glass-card rounded-xl overflow-hidden group relative">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <i class="fas fa-folder text-slate-500 text-3xl"></i>
+                            <div class="flex space-x-3">
+                                <a href="https://github.com/yogeshpenumur/" target="_blank" class="text-slate-400 hover:text-white"><i class="fab fa-github text-xl"></i></a>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-neonCyan transition-colors">Ansible Config Mgmt</h3>
+                        <p class="text-slate-400 text-sm mb-4">
+                            Wrote Ansible playbooks to automate the installation of Nginx, Docker, and security patches across multiple remote Linux servers.
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs font-mono text-neonPurple">
+                            <span>Ansible</span> <span>Automation</span> <span>Linux</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="certs" class="py-20 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-10">Certifications & Badges</h2>
+            <div class="flex flex-wrap justify-center gap-8">
+                <div class="flex flex-col items-center group">
+                    <div class="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center border border-slate-700 group-hover:border-orange-500 transition-all duration-300">
+                        <i class="fab fa-aws text-4xl text-orange-500"></i>
+                    </div>
+                    <span class="mt-4 font-mono text-sm">AWS Cloud Practitioner</span>
+                </div>
+                <div class="flex flex-col items-center group">
+                    <div class="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center border border-slate-700 group-hover:border-blue-500 transition-all duration-300">
+                        <i class="fab fa-docker text-4xl text-blue-500"></i>
+                    </div>
+                    <span class="mt-4 font-mono text-sm">Docker Associate</span>
+                </div>
+                <div class="flex flex-col items-center group">
+                    <div class="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center border border-slate-700 group-hover:border-purple-500 transition-all duration-300">
+                        <i class="fas fa-brain text-4xl text-purple-500"></i>
+                    </div>
+                    <span class="mt-4 font-mono text-sm">AWS AI-ML Internship</span>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <section id="contact" class="py-20 px-6 bg-black/40 relative">
+        <div class="max-w-3xl mx-auto glass-card p-8 rounded-xl border-t border-neonCyan">
+            <h2 class="text-3xl font-bold mb-6 text-center">Initiate Connection</h2>
+            
+            <div class="text-center mb-8 space-y-2">
+                <p class="text-slate-400"><i class="fas fa-envelope mr-2 text-neonCyan"></i> yogeshpenumur2002@gmail.com</p>
+                <p class="text-slate-400"><i class="fas fa-phone mr-2 text-neonCyan"></i> +91 9441528161</p>
+                <p class="text-slate-400"><i class="fas fa-map-marker-alt mr-2 text-neonCyan"></i> Bangalore, India</p>
+            </div>
+
+            <form class="space-y-6 font-mono" action="mailto:yogeshpenumur2002@gmail.com" method="post" enctype="text/plain">
+                <div>
+                    <label class="block text-neonCyan mb-2">> Enter Name:</label>
+                    <input type="text" class="w-full bg-slate-900 border border-slate-700 p-3 text-white focus:border-neonCyan focus:outline-none rounded" placeholder="_">
+                </div>
+                <div>
+                    <label class="block text-neonCyan mb-2">> Enter Message:</label>
+                    <textarea rows="4" class="w-full bg-slate-900 border border-slate-700 p-3 text-white focus:border-neonCyan focus:outline-none rounded" placeholder="_"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-neonCyan/20 text-neonCyan border border-neonCyan py-3 hover:bg-neonCyan hover:text-black transition-all font-bold uppercase tracking-widest group">
+                    [ Send Packet ] <i class="fas fa-paper-plane ml-2 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="py-8 text-center text-slate-500 text-sm border-t border-slate-800">
+        <div class="flex justify-center space-x-6 mb-4">
+            <a href="https://github.com/yogeshpenumur" class="text-2xl hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+            <a href="https://www.linkedin.com/in/yogeshpenumur" class="text-2xl hover:text-blue-400 transition-colors"><i class="fab fa-linkedin"></i></a>
+            <a href="https://twitter.com/yogeshpenumur" class="text-2xl hover:text-sky-400 transition-colors"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.instagram.com/yogesh__reddy_02/" class="text-2xl hover:text-pink-400 transition-colors"><i class="fab fa-instagram"></i></a>
+        </div>
+        <p>All rights reserved &copy; 2025 Yogesh Penumur.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // 1. PRELOADER LOGIC
+        window.addEventListener('load', () => {
+            const progressBar = document.getElementById('loader-progress');
+            const loaderText = document.getElementById('loader-text');
+            const preloader = document.getElementById('preloader');
+
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    loaderText.innerText = "System Ready.";
+                    gsap.to(preloader, {
+                        opacity: 0,
+                        duration: 1,
+                        onComplete: () => preloader.style.display = 'none'
+                    });
+                    initTypewriter(); // Start typing after load
+                } else {
+                    width += Math.random() * 10;
+                    if(width > 100) width = 100;
+                    progressBar.style.width = width + '%';
+                }
+            }, 100);
+        });
+
+        // 2. CUSTOM CURSOR
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+
+            // Add some delay to the outline for a fluid feel
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        // Interactive Hover Effects for Cursor
+        document.querySelectorAll('a, button, .glass-card').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorOutline.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                cursorOutline.style.backgroundColor = 'rgba(0, 212, 255, 0.1)';
+                cursorOutline.style.borderColor = 'transparent';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorOutline.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursorOutline.style.backgroundColor = 'transparent';
+                cursorOutline.style.borderColor = '#8B5CF6';
+            });
+        });
+
+        // 3. TYPEWRITER EFFECT
+        function initTypewriter() {
+            const textElement = document.getElementById('hero-typewriter');
+            const words = ["Cloud Infrastructure", "CI/CD Pipelines", "Secure Networks", "Scalable Systems"];
+            let wordIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+
+            function type() {
+                const currentWord = words[wordIndex];
+                if (isDeleting) {
+                    textElement.textContent = currentWord.substring(0, charIndex - 1);
+                    charIndex--;
+                } else {
+                    textElement.textContent = currentWord.substring(0, charIndex + 1);
+                    charIndex++;
+                }
+
+                let typeSpeed = isDeleting ? 50 : 100;
+
+                if (!isDeleting && charIndex === currentWord.length) {
+                    isDeleting = true;
+                    typeSpeed = 2000; // Pause at end
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    wordIndex = (wordIndex + 1) % words.length;
+                    typeSpeed = 500;
+                }
+
+                setTimeout(type, typeSpeed);
+            }
+            type();
+        }
+
+        // 4. MATRIX RAIN EFFECT
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%';
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.05)'; // Fade effect
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0F0'; // Green text
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 50);
+
+        // 5. THREE.JS PARTICLE SPHERE
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 2 / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        
+        // Only render in the right half on desktop, full on mobile but hidden by CSS
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('three-canvas-container').appendChild(renderer.domElement);
+
+        // Particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 700;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 15; // Spread
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const material = new THREE.PointsMaterial({
+            size: 0.05,
+            color: 0x00D4FF,
+            transparent: true,
+            opacity: 0.8,
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, material);
+        scene.add(particlesMesh);
+
+        // Connecting Lines (Optional aesthetic)
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x8B5CF6, transparent: true, opacity: 0.15 });
+        const linesGeometry = new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(4, 1));
+        const linesMesh = new THREE.LineSegments(linesGeometry, lineMaterial);
+        scene.add(linesMesh);
+
+        camera.position.z = 8;
+
+        function animateThree() {
+            requestAnimationFrame(animateThree);
+            particlesMesh.rotation.y += 0.001;
+            particlesMesh.rotation.x += 0.001;
+            linesMesh.rotation.y -= 0.002;
+            linesMesh.rotation.x -= 0.001;
+            renderer.render(scene, camera);
+        }
+        animateThree();
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // 6. GSAP SCROLL ANIMATIONS
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.utils.toArray('.glass-card').forEach(card => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 85%",
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                ease: "power3.out"
+            });
+        });
+
+        // 7. MOBILE MENU TOGGLE
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // 8. EASTER EGG (Type 'neo')
+        let keySequence = [];
+        window.addEventListener('keydown', (e) => {
+            keySequence.push(e.key);
+            if (keySequence.length > 3) keySequence.shift();
+            if (keySequence.join('') === 'neo') {
+                alert("Welcome to the Matrix, Yogesh.");
+                canvas.style.opacity = 0.8; // Crank up matrix rain
+                canvas.style.zIndex = 9999;
+                setTimeout(() => {
+                    canvas.style.opacity = 0.05;
+                    canvas.style.zIndex = 0;
+                }, 5000);
+            }
+        });
+
+    </script>
+</body>
+</html>
